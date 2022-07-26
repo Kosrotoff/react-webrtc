@@ -1,0 +1,13 @@
+{
+  "name": "react-webrtc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"yarn --cwd server dev\" \"yarn --cwd client dev\""
+  },
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "concurrently": "^7.3.0"
+  }
+}
