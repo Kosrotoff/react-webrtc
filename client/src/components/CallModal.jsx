@@ -1,5 +1,6 @@
-import { BsCameraVideo, BsPhone } from 'react-icons/bs'
-import { FiPhoneOff } from 'react-icons/fi'
+import { BsCameraVideo, BsPhone } from 'react-icons/bs';
+import { FiPhoneOff } from 'react-icons/fi';
+
 
 // функция принимает `id` звонящего и методы для принятия звонка и его отклонения
 export const CallModal = ({ callFrom, startCall, rejectCall }) => {
@@ -7,8 +8,8 @@ export const CallModal = ({ callFrom, startCall, rejectCall }) => {
     const acceptWithVideo = (video) => {
         const config = { audio: true, video }
         // инициализация `PeerConnection`
-        startCall(false, callFrom, config)
-    }
+        startCall(false, callFrom, config);
+    };
 
     return (
         <div className='call-modal'>
@@ -30,5 +31,5 @@ export const CallModal = ({ callFrom, startCall, rejectCall }) => {
                 </div>
             </div>
         </div>
-    )
+    );
 }
