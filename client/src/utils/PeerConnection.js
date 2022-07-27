@@ -9,14 +9,14 @@ class PeerConnection extends Emitter {
         super()
         this.remoteId = remoteId
 
-        this.pc = new RTCPeerConnection(CONFIG)
-        this.pc.onicecandidate = ({ candidate }) => {
+        this.rtcPeerConnection = new RTCPeerConnection(CONFIG)
+        this.rtcPeerConnection.onicecandidate = ({ candidate }) => {
             socket.emit('call', {
                 to: this.remoteId,
                 candidate
             })
         }
-        this.pc.ontrack = ({ streams }) => {
+        this.rtcPeerConnection.ontrack = ({ streams }) => {
             this.emit('remoteStream', streams[0])
         }
 
@@ -29,7 +29,7 @@ class PeerConnection extends Emitter {
         this.mediaDevice
             .on('stream', (stream) => {
                 stream.getTracks().forEach((t) => {
-                    this.pc.addTrack(t, stream)
+                    this.rtcPeerConnection.addTrack(t, stream)
                 })
 
                 this.emit('localStream', stream)
@@ -48,26 +48,26 @@ class PeerConnection extends Emitter {
             socket.emit('end', { to: this.remoteId })
         }
         this.mediaDevice.stop()
-        this.pc.restartIce()
+        this.rtcPeerConnection.restartIce()
         this.off()
 
         return this
     }
 
     createOffer() {
-        this.pc.createOffer().then(this.getDescription).catch(console.error)
+        this.rtcPeerConnection.createOffer().then(this.getDescription).catch(console.error)
 
         return this
     }
 
     createAnswer() {
-        this.pc.createAnswer().then(this.getDescription).catch(console.error)
+        this.rtcPeerConnection.createAnswer().then(this.getDescription).catch(console.error)
 
         return this
     }
 
     getDescription(desc) {
-        this.pc.setLocalDescription(desc)
+        this.rtcPeerConnection.setLocalDescription(desc)
 
         socket.emit('call', { to: this.remoteId, sdp: desc })
 
@@ -75,14 +75,14 @@ class PeerConnection extends Emitter {
     }
 
     setRemoteDescription(desc) {
-        this.pc.setRemoteDescription(new RTCSessionDescription(desc))
+        this.rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(desc))
 
         return this
     }
 
     addIceCandidate(candidate) {
         if (candidate) {
-            this.pc.addIceCandidate(new RTCIceCandidate(candidate))
+            this.rtcPeerConnection.addIceCandidate(new RTCIceCandidate(candidate))
         }
 
         return this

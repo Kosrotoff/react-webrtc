@@ -16,7 +16,7 @@ export default function App() {
     const [localSrc, setLocalSrc] = useState(null);
     const [remoteSrc, setRemoteSrc] = useState(null);
 
-    const [pc, setPc] = useState(null);
+    const [peerConnection, setPeerConnection] = useState(null);
     const [config, setConfig] = useState(null);
 
     useEffect(() => {
@@ -28,9 +28,9 @@ export default function App() {
 
 
     const finishCall = useCallback((isCaller) => {
-        pc.stop(isCaller);
+        peerConnection.stop(isCaller);
 
-        setPc(null);
+        setPeerConnection(null);
         setConfig(null);
 
         setCalling(false);
@@ -38,42 +38,42 @@ export default function App() {
 
         setLocalSrc(null);
         setRemoteSrc(null);
-    }, [pc]);
+    }, [peerConnection]);
 
     useEffect(() => {
-        if (!pc) return;
+        if (!peerConnection) return;
 
         socket
             .on('call', (data) => {
                 if (data.sdp) {
-                    pc.setRemoteDescription(data.sdp)
+                    peerConnection.setRemoteDescription(data.sdp)
 
                     if (data.sdp.type === 'offer') {
-                        pc.createAnswer()
+                        peerConnection.createAnswer()
                     }
                 } else {
-                    pc.addIceCandidate(data.candidate)
+                    peerConnection.addIceCandidate(data.candidate)
                 }
             })
             .on('end', () => finishCall(false));
-    }, [pc, finishCall]);
+    }, [peerConnection, finishCall]);
 
     const startCall = (isCaller, remoteId, config) => {
         setShowModal(false);
         setCalling(true);
         setConfig(config);
 
-        const _pc = new PeerConnection(remoteId)
-            .on('localStream', (stream) => {
-                setLocalSrc(stream)
-            })
-            .on('remoteStream', (stream) => {
-                setRemoteSrc(stream)
-                setCalling(false)
-            })
-            .start(isCaller, config);
-
-        setPc(_pc);
+        setPeerConnection(
+            new PeerConnection(remoteId)
+                .on('localStream', (stream) => {
+                    setLocalSrc(stream)
+                })
+                .on('remoteStream', (stream) => {
+                    setRemoteSrc(stream)
+                    setCalling(false)
+                })
+                .start(isCaller, config)
+        );
     };
 
     const rejectCall = () => {
@@ -105,7 +105,7 @@ export default function App() {
                     localSrc={localSrc}
                     remoteSrc={remoteSrc}
                     config={config}
-                    mediaDevice={pc?.mediaDevice}
+                    mediaDevice={peerConnection?.mediaDevice}
                     finishCall={finishCall}
                 />
             )}
