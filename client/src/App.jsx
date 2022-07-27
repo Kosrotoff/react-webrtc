@@ -1,12 +1,11 @@
-import './styles/app.scss';
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BsPhoneVibrate } from 'react-icons/bs';
 
 import PeerConnection from './utils/PeerConnection';
 import socket from './utils/socket';
 
 import { MainWindow, CallWindow, CallModal } from './components';
+
 
 export default function App() {
     const [callFrom, setCallFrom] = useState('');
@@ -27,6 +26,20 @@ export default function App() {
         })
     }, []);
 
+
+    const finishCall = useCallback((isCaller) => {
+        pc.stop(isCaller);
+
+        setPc(null);
+        setConfig(null);
+
+        setCalling(false);
+        setShowModal(false);
+
+        setLocalSrc(null);
+        setRemoteSrc(null);
+    }, [pc]);
+
     useEffect(() => {
         if (!pc) return;
 
@@ -43,7 +56,7 @@ export default function App() {
                 }
             })
             .on('end', () => finishCall(false));
-    }, [pc]);
+    }, [pc, finishCall]);
 
     const startCall = (isCaller, remoteId, config) => {
         setShowModal(false);
@@ -67,19 +80,6 @@ export default function App() {
         socket.emit('end', { to: callFrom });
 
         setShowModal(false);
-    };
-
-    const finishCall = (isCaller) => {
-        pc.stop(isCaller);
-
-        setPc(null);
-        setConfig(null);
-
-        setCalling(false);
-        setShowModal(false);
-
-        setLocalSrc(null);
-        setRemoteSrc(null);
     };
 
     return (
